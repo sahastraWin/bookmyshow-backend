@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midnight Cinema | Exquisite Movie Experience</title>
+    <link rel="stylesheet" href="css/base.css">
+    <style>
+        .hero { position: relative; height: 70vh; display: flex; align-items: flex-end; padding: var(--space-6) var(--space-4); overflow: hidden; }
+        .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; opacity: 0.6; animation: kenburns 20s infinite alternate linear; }
+        @keyframes kenburns { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+        .hero-scrim { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-darkest) 0%, transparent 60%); z-index: -1; }
+        .hero-content { max-width: 800px; }
+        .hero-title { font-size: 4rem; margin-bottom: var(--space-2); line-height: 1.1; }
+        .hero-meta { color: var(--text-secondary); margin-bottom: var(--space-3); font-size: 1.1rem; display: flex; gap: var(--space-2); }
+        .movie-rail { padding: var(--space-4); }
+        .movie-rail-title { margin-bottom: var(--space-3); font-size: 2rem; }
+        .movie-grid { display: flex; gap: var(--space-3); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: var(--space-2); scrollbar-width: none; }
+        .movie-grid::-webkit-scrollbar { display: none; }
+        .movie-card { min-width: 240px; scroll-snap-align: start; position: relative; border-radius: 12px; overflow: hidden; transition: transform var(--time-normal); cursor: pointer; }
+        .movie-card:hover { transform: translateY(-8px); }
+        .movie-poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 12px; }
+        .movie-info { position: absolute; bottom: 0; left: 0; width: 100%; padding: var(--space-2); background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); opacity: 0; transition: opacity var(--time-fast); }
+        .movie-card:hover .movie-info { opacity: 1; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">Midnight Cinema</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="bookings.html" id="my-bookings-link" style="display:none;">My Bookings</a>
+            <a href="auth.html" id="auth-link">Sign In</a>
+            <button id="logout-btn" style="display:none;" onclick="AuthService.logout()">Logout</button>
+        </div>
+    </nav>
+    <main>
+        <section class="hero" id="hero">
+            <img class="hero-bg skeleton" id="hero-bg" src="" alt="Backdrop">
+            <div class="hero-scrim"></div>
+            <div class="hero-content">
+                <h1 class="hero-title" id="hero-title">Loading...</h1>
+                <div class="hero-meta" id="hero-meta"></div>
+                <a href="#" class="btn-primary" id="hero-cta">Book Tickets</a>
+            </div>
+        </section>
+        
+        <section class="movie-rail">
+            <h2 class="movie-rail-title">Now Showing</h2>
+            <div class="movie-grid" id="movie-grid">
+                <!-- Skeletons -->
+                <div class="movie-card skeleton" style="height: 360px;"></div>
+                <div class="movie-card skeleton" style="height: 360px;"></div>
+                <div class="movie-card skeleton" style="height: 360px;"></div>
+                <div class="movie-card skeleton" style="height: 360px;"></div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="js/ui.js"></script>
+    <script type="module">
+        import { fetchApi } from './js/api.js';
+        import { AuthService } from './js/auth.js';
+
+        async function init() {
+            const user = AuthService.getCurrentUser();
+            if(user) {
+                document.getElementById('auth-link').style.display = 'none';
+                document.getElementById('logout-btn').style.display = 'block';
+                document.getElementById('my-bookings-link').style.display = 'block';
+            }
+
+            try {
+                const movies = await fetchApi('/movies');
+                const grid = document.getElementById('movie-grid');
+                grid.innerHTML = '';
+                
+                movies.forEach((m, idx) => {
+                    if (idx === 0) {
+                        document.getElementById('hero-bg').src = m.posterUrl || 'https://via.placeholder.com/1200x800/181824/ffffff?text=Midnight+Cinema';
+                        document.getElementById('hero-bg').classList.remove('skeleton');
+                        document.getElementById('hero-title').textContent = m.title;
+                        document.getElementById('hero-meta').innerHTML = `<span>${m.durationMinutes} min</span> &bull; <span>${m.genre}</span> &bull; <span>⭐ ${m.rating}/10</span>`;
+                        document.getElementById('hero-cta').href = `shows.html?movieId=${m.id}`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'movie-card';
+                    card.onclick = () => window.location.href = `shows.html?movieId=${m.id}`;
+                    card.innerHTML = `
+                        <img class="movie-poster" src="${m.posterUrl || 'https://via.placeholder.com/400x600'}" alt="${m.title}">
+                        <div class="movie-info">
+                            <h3>${m.title}</h3>
+                            <p>${m.genre}</p>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shows | Midnight Cinema</title>
+    <link rel="stylesheet" href="css/base.css">
+    <style>
+        .page-container { padding: 100px var(--space-4) var(--space-4); max-width: 1200px; margin: 0 auto; }
+        .theatre-card { background: var(--bg-panel); border: 1px solid var(--border-glass); border-radius: 12px; padding: var(--space-3); margin-bottom: var(--space-3); }
+        .show-pill { display: inline-block; padding: var(--space-1) var(--space-2); border: 1px solid var(--accent-success); color: var(--accent-success); border-radius: 4px; margin: var(--space-1); font-weight: 500; transition: all var(--time-fast); }
+        .show-pill:hover { background: var(--accent-success); color: var(--bg-darkest); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">Midnight Cinema</div>
+        <div class="nav-links"><a href="index.html">Home</a></div>
+    </nav>
+    <div class="page-container">
+        <h1 id="movie-title">Shows</h1>
+        <div id="shows-container" style="margin-top: 2rem;">Loading shows...</div>
+    </div>
+    
+    <script type="module">
+        import { fetchApi } from './js/api.js';
+        
+        async function init() {
+            const params = new URLSearchParams(window.location.search);
+            const movieId = params.get('movieId');
+            if(!movieId) return window.location.href = 'index.html';
+            
+            try {
+                const movie = await fetchApi(`/movies/${movieId}`);
+                document.getElementById('movie-title').textContent = movie.title + ' - Shows';
+                
+                const shows = await fetchApi(`/shows/movie/${movieId}`);
+                const container = document.getElementById('shows-container');
+                container.innerHTML = '';
+                
+                if (shows.length === 0) {
+                    container.innerHTML = '<p>No shows available.</p>';
+                    return;
+                }
+                
+                const grouped = shows.reduce((acc, show) => {
+                    const key = show.theaterName;
+                    if(!acc[key]) acc[key] = [];
+                    acc[key].push(show);
+                    return acc;
+                }, {});
+                
+                for (let theater in grouped) {
+                    const div = document.createElement('div');
+                    div.className = 'theatre-card';
+                    let pills = grouped[theater].map(s => 
+                        `<a href="seats.html?showId=${s.id}" class="show-pill">${s.startTime}</a>`
+                    ).join('');
+                    div.innerHTML = `<h3>${theater}</h3><div style="margin-top:1rem;">${pills}</div>`;
+                    container.appendChild(div);
+                }
+            } catch (err) { console.error(err); }
+        }
+        init();
+    </script>
+</body>
+</html>

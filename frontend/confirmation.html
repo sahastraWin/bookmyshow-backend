@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket | Midnight Cinema</title>
+    <link rel="stylesheet" href="css/base.css">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
+        .ticket { background: linear-gradient(135deg, var(--bg-panel), #1e1e2d); padding: var(--space-4); border-radius: 16px; border: 1px solid var(--border-glass); width: 100%; max-width: 400px; text-align: center; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .ticket::before, .ticket::after { content: ''; position: absolute; width: 30px; height: 30px; background: var(--bg-darkest); border-radius: 50%; top: 50%; transform: translateY(-50%); }
+        .ticket::before { left: -15px; border-right: 1px solid var(--border-glass); }
+        .ticket::after { right: -15px; border-left: 1px solid var(--border-glass); }
+        .ticket-divider { border-top: 2px dashed var(--border-glass); margin: var(--space-3) 0; }
+        .qr-code { background: white; padding: 10px; display: inline-block; margin-top: 1rem; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="ticket" id="ticket">
+        <h2>Booking Confirmed!</h2>
+        <div class="ticket-divider"></div>
+        <h3 id="movie-title" style="color: var(--accent-coral);">Loading...</h3>
+        <p id="theater-info" style="color: var(--text-secondary); margin-top: 8px;"></p>
+        <p id="time-info" style="margin-top: 8px;"></p>
+        <div class="ticket-divider"></div>
+        <p id="seats-info" style="font-size: 1.2rem; font-weight: bold;"></p>
+        <div class="qr-code">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=MidnightCinema" alt="QR Code">
+        </div>
+    </div>
+    <a href="index.html" class="btn-primary" style="margin-top: 2rem;">Back to Home</a>
+
+    <script type="module">
+        import { fetchApi } from './js/api.js';
+        
+        async function init() {
+            const params = new URLSearchParams(window.location.search);
+            const bookingId = params.get('bookingId');
+            if(!bookingId) return;
+
+            try {
+                const b = await fetchApi(`/bookings/${bookingId}`);
+                document.getElementById('movie-title').textContent = b.movieTitle;
+                document.getElementById('theater-info').textContent = `${b.theaterName} • ${b.screenName}`;
+                document.getElementById('time-info').textContent = new Date(b.bookedAt).toLocaleString();
+                document.getElementById('seats-info').textContent = 'Seats: ' + b.seats.map(s => s.seatNumber).join(', ');
+            } catch(e) { console.error(e); }
+        }
+        init();
+    </script>
+</body>
+</html>

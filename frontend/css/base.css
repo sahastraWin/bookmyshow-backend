@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+@import 'tokens.css';
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background-color: var(--bg-darkest);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+/* Navbar */
+nav {
+  position: fixed; top: 0; width: 100%; z-index: 100;
+  background: var(--bg-glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-glass);
+  padding: var(--space-2) var(--space-4);
+  display: flex; justify-content: space-between; align-items: center;
+  transition: padding var(--time-normal) var(--ease-smooth);
+}
+nav.scrolled { padding: var(--space-1) var(--space-4); }
+
+.nav-brand {
+  font-family: var(--font-display); font-size: 1.5rem; color: var(--accent-red); font-weight: 700;
+}
+.nav-links { display: flex; gap: var(--space-3); align-items: center; }
+.nav-links a { color: var(--text-secondary); font-weight: 500; transition: color var(--time-fast); }
+.nav-links a:hover { color: var(--text-primary); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-red), var(--accent-coral));
+  color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;
+  box-shadow: 0 4px 12px rgba(248, 68, 100, 0.3);
+  transition: transform var(--time-fast), box-shadow var(--time-fast);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(248, 68, 100, 0.4); }
+.btn-primary:active { transform: translateY(0); }
+
+/* Shimmer */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-panel) 25%, var(--bg-dark) 50%, var(--bg-panel) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
