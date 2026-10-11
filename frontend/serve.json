@@ -1,0 +1,14 @@
+{
+  "public": ".",
+  "cleanUrls": false,
+  "directoryListing": false,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/index", "destination": "/index.html" },
+    { "source": "/shows", "destination": "/shows.html" },
+    { "source": "/seats", "destination": "/seats.html" },
+    { "source": "/auth", "destination": "/auth.html" },
+    { "source": "/bookings", "destination": "/bookings.html" },
+    { "source": "/confirmation", "destination": "/confirmation.html" }
+  ]
+}

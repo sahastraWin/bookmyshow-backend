@@ -2,49 +2,302 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Shows | Midnight Cinema</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shows & Theaters | Midnight Cinema</title>
     <link rel="stylesheet" href="css/base.css">
     <style>
-        .page-container { padding: 100px var(--space-4) var(--space-4); max-width: 1200px; margin: 0 auto; }
-        .theatre-card { background: var(--bg-panel); border: 1px solid var(--border-glass); border-radius: 12px; padding: var(--space-3); margin-bottom: var(--space-3); }
-        .show-pill { display: inline-block; padding: var(--space-1) var(--space-2); border: 1px solid var(--accent-success); color: var(--accent-success); border-radius: 4px; margin: var(--space-1); font-weight: 500; transition: all var(--time-fast); }
-        .show-pill:hover { background: var(--accent-success); color: var(--bg-darkest); }
+        .page-container { padding: 100px var(--space-4) var(--space-6); max-width: 1000px; margin: 0 auto; }
+        
+        /* Movie Selector Bar */
+        .movie-selector-bar {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glass);
+        }
+        .movie-pill-btn {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glass-strong);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all var(--time-fast);
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .movie-pill-btn:hover {
+            border-color: var(--accent-coral);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+        .movie-pill-btn.active {
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-coral));
+            color: #FFFFFF;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(248, 68, 100, 0.4);
+            font-weight: 600;
+        }
+
+        .movie-header {
+            display: flex;
+            gap: 2rem;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+        .movie-thumb {
+            width: 120px;
+            aspect-ratio: 2/3;
+            border-radius: 10px;
+            object-fit: cover;
+            background: var(--bg-darkest);
+        }
+        .movie-header-info h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .movie-tags {
+            display: flex;
+            gap: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+        }
+        .tag-pill {
+            background: rgba(128, 128, 128, 0.12);
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .section-heading {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .theatre-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: border-color var(--time-fast);
+        }
+        .theatre-card:hover {
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+        .theatre-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 0.75rem;
+        }
+        .theatre-name {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+        .theatre-location {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .shows-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .show-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.85rem 1.4rem;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1.5px solid rgba(16, 185, 129, 0.4);
+            border-radius: 10px;
+            transition: all var(--time-fast);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-primary);
+            min-width: 120px;
+        }
+        .show-slot:hover, .show-slot.green-clicked {
+            background: var(--accent-success);
+            color: #FFFFFF !important;
+            border-color: var(--accent-success);
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 8px 20px var(--accent-success-glow);
+        }
+        .show-slot:hover .show-screen,
+        .show-slot:hover .show-price,
+        .show-slot.green-clicked .show-screen,
+        .show-slot.green-clicked .show-price {
+            color: #FFFFFF !important;
+        }
+        .show-time {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+        .show-screen {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        .show-price {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--bg-panel);
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
     <nav>
-        <div class="nav-brand">Midnight Cinema</div>
-        <div class="nav-links"><a href="index.html">Home</a></div>
+        <a href="index.html" class="nav-brand">🎬 Midnight Cinema</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="shows.html">Browse Shows</a>
+            <a href="auth.html" class="btn-primary btn-sm">Sign In</a>
+        </div>
     </nav>
+
     <div class="page-container">
-        <h1 id="movie-title">Shows</h1>
-        <div id="shows-container" style="margin-top: 2rem;">Loading shows...</div>
+        <!-- Movie selector pills -->
+        <div class="movie-selector-bar" id="movie-selector-bar">
+            <span style="font-size: 0.85rem; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase;">Movies:</span>
+            <!-- Rendered by JS -->
+        </div>
+
+        <div class="movie-header" id="movie-header">
+            <img class="movie-thumb skeleton" id="movie-poster" src="" alt="Movie">
+            <div class="movie-header-info">
+                <h1 id="movie-title">Loading movie...</h1>
+                <div class="movie-tags" id="movie-tags"></div>
+                <p id="movie-desc" style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;"></p>
+            </div>
+        </div>
+
+        <div class="section-heading">
+            <h2>Select Showtime</h2>
+            <span style="color: var(--accent-success); font-weight: 600; font-size: 0.95rem;" id="today-date">Available Today</span>
+        </div>
+
+        <div id="shows-container">
+            <div class="theatre-card skeleton" style="height: 140px;"></div>
+            <div class="theatre-card skeleton" style="height: 140px;"></div>
+        </div>
     </div>
     
+    <script type="module" src="js/ui.js"></script>
     <script type="module">
         import { fetchApi } from './js/api.js';
+        import { initNav, showToast } from './js/ui.js';
         
         async function init() {
-            const params = new URLSearchParams(window.location.search);
-            const movieId = params.get('movieId');
-            if(!movieId) return window.location.href = 'index.html';
+            initNav();
             
+            document.getElementById('today-date').textContent = 'Today, ' + new Date().toLocaleDateString('en-US', {
+                weekday: 'short', month: 'short', day: 'numeric'
+            });
+
+            const params = new URLSearchParams(window.location.search);
+            let movieId = params.get('movieId');
+
+            let allMovies = [];
             try {
+                allMovies = await fetchApi('/movies') || [];
+            } catch (e) {
+                console.warn('Could not fetch movies list:', e);
+            }
+
+            // Populate movie pills
+            const selectorBar = document.getElementById('movie-selector-bar');
+            if (allMovies.length > 0) {
+                // If movieId wasn't in URL or not found, default to first movie
+                if (!movieId || !allMovies.some(m => String(m.id) === String(movieId))) {
+                    movieId = allMovies[0].id;
+                }
+
+                allMovies.forEach(m => {
+                    const btn = document.createElement('a');
+                    btn.className = `movie-pill-btn ${String(m.id) === String(movieId) ? 'active' : ''}`;
+                    btn.href = `shows.html?movieId=${m.id}`;
+                    btn.textContent = m.title;
+                    selectorBar.appendChild(btn);
+                });
+            } else if (!movieId) {
+                movieId = 1; // Fallback
+            }
+
+            loadMovieDetailsAndShows(movieId);
+        }
+
+        async function loadMovieDetailsAndShows(movieId) {
+            try {
+                // Fetch Movie Info
                 const movie = await fetchApi(`/movies/${movieId}`);
-                document.getElementById('movie-title').textContent = movie.title + ' - Shows';
+                document.getElementById('movie-title').textContent = movie.title;
+                document.title = `${movie.title} - Shows | Midnight Cinema`;
                 
+                const poster = document.getElementById('movie-poster');
+                poster.src = movie.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400';
+                poster.classList.remove('skeleton');
+                poster.onerror = () => {
+                    poster.src = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400';
+                };
+
+                document.getElementById('movie-tags').innerHTML = `
+                    <span class="tag-pill">${escapeHtml(movie.genre || 'Action')}</span>
+                    <span class="tag-pill">⏱ ${movie.durationMinutes || 120} min</span>
+                    <span class="tag-pill">${escapeHtml(movie.language || 'English')}</span>
+                    <span class="tag-pill" style="color: var(--accent-gold); font-weight: 600;">★ ${movie.rating || '8.0'}/10</span>
+                `;
+                document.getElementById('movie-desc').textContent = movie.description || '';
+                
+                // Fetch Shows
                 const shows = await fetchApi(`/shows/movie/${movieId}`);
                 const container = document.getElementById('shows-container');
                 container.innerHTML = '';
                 
-                if (shows.length === 0) {
-                    container.innerHTML = '<p>No shows available.</p>';
+                if (!shows || shows.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No Shows Scheduled</h3>
+                            <p style="margin-top: 0.5rem;">There are currently no active shows for this movie. Check back soon!</p>
+                            <a href="index.html" class="btn-secondary" style="margin-top: 1.5rem; display: inline-block;">Browse Other Movies</a>
+                        </div>
+                    `;
                     return;
                 }
                 
+                // Group by theater
                 const grouped = shows.reduce((acc, show) => {
-                    const key = show.theaterName;
-                    if(!acc[key]) acc[key] = [];
+                    const key = show.theaterName || 'Main Cinema';
+                    if (!acc[key]) acc[key] = [];
                     acc[key].push(show);
                     return acc;
                 }, {});
@@ -52,14 +305,61 @@
                 for (let theater in grouped) {
                     const div = document.createElement('div');
                     div.className = 'theatre-card';
-                    let pills = grouped[theater].map(s => 
-                        `<a href="seats.html?showId=${s.id}" class="show-pill">${s.startTime}</a>`
-                    ).join('');
-                    div.innerHTML = `<h3>${theater}</h3><div style="margin-top:1rem;">${pills}</div>`;
+                    
+                    const theaterCity = grouped[theater][0]?.cityName || '';
+                    
+                    const slotsHtml = grouped[theater].map(s => {
+                        const formattedTime = formatTime(s.startTime);
+                        return `
+                            <a href="seats.html?showId=${s.id}" class="show-slot" onclick="this.classList.add('green-clicked')">
+                                <span class="show-time">${formattedTime}</span>
+                                <span class="show-screen">${escapeHtml(s.screenName || 'Screen 1')}</span>
+                                <span class="show-price">₹${s.ticketPrice || 250}</span>
+                            </a>
+                        `;
+                    }).join('');
+
+                    div.innerHTML = `
+                        <div class="theatre-header">
+                            <div>
+                                <h3 class="theatre-name">${escapeHtml(theater)}</h3>
+                                <div class="theatre-location">📍 ${escapeHtml(theaterCity || 'Luxury Cineplex')}</div>
+                            </div>
+                        </div>
+                        <div class="shows-row">${slotsHtml}</div>
+                    `;
                     container.appendChild(div);
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('shows-container').innerHTML = `
+                    <div class="empty-state">
+                        <h3 style="color: var(--accent-coral);">Could not load shows</h3>
+                        <p style="margin-top: 0.5rem;">${escapeHtml(err.message || 'Network error')}</p>
+                        <a href="index.html" class="btn-primary" style="margin-top: 1.5rem; display: inline-block;">Back to Home</a>
+                    </div>
+                `;
+            }
         }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '10:00 AM';
+            if (typeof timeStr === 'string' && timeStr.includes(':')) {
+                const parts = timeStr.split(':');
+                let h = parseInt(parts[0]);
+                const m = parts[1];
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                h = h % 12 || 12;
+                return `${h}:${m} ${ampm}`;
+            }
+            return timeStr;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
         init();
     </script>
 </body>

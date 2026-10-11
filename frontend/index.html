@@ -6,32 +6,57 @@
     <title>Midnight Cinema | Exquisite Movie Experience</title>
     <link rel="stylesheet" href="css/base.css">
     <style>
-        .hero { position: relative; height: 70vh; display: flex; align-items: flex-end; padding: var(--space-6) var(--space-4); overflow: hidden; }
-        .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; opacity: 0.6; animation: kenburns 20s infinite alternate linear; }
+        .hero { position: relative; min-height: 70vh; display: flex; align-items: flex-end; padding: var(--space-6) var(--space-4); overflow: hidden; }
+        .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; opacity: 0.55; animation: kenburns 25s infinite alternate linear; }
         @keyframes kenburns { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
-        .hero-scrim { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-darkest) 0%, transparent 60%); z-index: -1; }
-        .hero-content { max-width: 800px; }
-        .hero-title { font-size: 4rem; margin-bottom: var(--space-2); line-height: 1.1; }
-        .hero-meta { color: var(--text-secondary); margin-bottom: var(--space-3); font-size: 1.1rem; display: flex; gap: var(--space-2); }
-        .movie-rail { padding: var(--space-4); }
-        .movie-rail-title { margin-bottom: var(--space-3); font-size: 2rem; }
-        .movie-grid { display: flex; gap: var(--space-3); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: var(--space-2); scrollbar-width: none; }
-        .movie-grid::-webkit-scrollbar { display: none; }
-        .movie-card { min-width: 240px; scroll-snap-align: start; position: relative; border-radius: 12px; overflow: hidden; transition: transform var(--time-normal); cursor: pointer; }
-        .movie-card:hover { transform: translateY(-8px); }
-        .movie-poster { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 12px; }
-        .movie-info { position: absolute; bottom: 0; left: 0; width: 100%; padding: var(--space-2); background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); opacity: 0; transition: opacity var(--time-fast); }
-        .movie-card:hover .movie-info { opacity: 1; }
+        .hero-scrim { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, var(--bg-darkest) 0%, rgba(7,7,11,0.5) 60%, transparent 100%); z-index: -1; }
+        .hero-content { max-width: 800px; padding-bottom: 1rem; }
+        .hero-badge { display: inline-block; padding: 0.35rem 0.8rem; background: rgba(248, 68, 100, 0.2); border: 1px solid var(--accent-red); color: var(--accent-coral); border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-2); }
+        .hero-title { font-size: 3.5rem; margin-bottom: var(--space-2); line-height: 1.1; }
+        .hero-desc { color: var(--text-secondary); font-size: 1.05rem; margin-bottom: var(--space-3); max-width: 650px; line-height: 1.6; }
+        .hero-meta { color: var(--text-secondary); margin-bottom: var(--space-3); font-size: 1.05rem; display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+        .hero-actions { display: flex; gap: 1rem; align-items: center; }
+        
+        .movie-rail { padding: var(--space-4); max-width: 1400px; margin: 0 auto; }
+        .movie-rail-title { margin-bottom: var(--space-3); font-size: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.75rem; }
+        .movie-card { 
+            position: relative; 
+            border-radius: 14px; 
+            overflow: hidden; 
+            transition: all var(--time-normal); 
+            cursor: pointer; 
+            background: var(--bg-panel); 
+            border: 1px solid var(--border-glass-strong); 
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+        }
+        .movie-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.4); 
+            border-color: var(--accent-coral); 
+        }
+        .movie-poster-wrap { width: 100%; aspect-ratio: 2/3; overflow: hidden; background: var(--bg-darkest); position: relative; }
+        .movie-poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .movie-card:hover .movie-poster { transform: scale(1.06); }
+        .movie-card-body { padding: 1.1rem; display: flex; flex-direction: column; flex: 1; }
+        .movie-card-title { font-size: 1.2rem; margin-bottom: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); }
+        .movie-card-meta { display: flex; justify-content: space-between; align-items: center; color: var(--text-secondary); font-size: 0.85rem; margin-top: auto; }
+        .rating-badge { color: var(--accent-gold); font-weight: 700; display: flex; align-items: center; gap: 0.25rem; }
+        
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-secondary); }
+        .empty-state h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary); }
     </style>
 </head>
 <body>
     <nav>
-        <div class="nav-brand">Midnight Cinema</div>
+        <a href="index.html" class="nav-brand">🎬 Midnight Cinema</a>
         <div class="nav-links">
             <a href="index.html">Home</a>
-            <a href="bookings.html" id="my-bookings-link" style="display:none;">My Bookings</a>
-            <a href="auth.html" id="auth-link">Sign In</a>
-            <button id="logout-btn" style="display:none;" onclick="AuthService.logout()">Logout</button>
+            <a href="shows.html">Browse Shows</a>
+            <a href="auth.html" id="auth-link" class="btn-primary btn-sm">Sign In</a>
         </div>
     </nav>
     <main>
@@ -39,20 +64,27 @@
             <img class="hero-bg skeleton" id="hero-bg" src="" alt="Backdrop">
             <div class="hero-scrim"></div>
             <div class="hero-content">
-                <h1 class="hero-title" id="hero-title">Loading...</h1>
+                <span class="hero-badge" id="hero-badge">FEATURED PREMIERE</span>
+                <h1 class="hero-title" id="hero-title">Discover Cinematic Excellence</h1>
+                <p class="hero-desc" id="hero-desc">Experience luxury cinema booking with real-time seat selection, premium sound stages, and instant digital tickets.</p>
                 <div class="hero-meta" id="hero-meta"></div>
-                <a href="#" class="btn-primary" id="hero-cta">Book Tickets</a>
+                <div class="hero-actions">
+                    <a href="#movies" class="btn-primary" id="hero-cta">Browse Now Showing</a>
+                    <a href="shows.html" class="btn-secondary">All Showtimes</a>
+                </div>
             </div>
         </section>
         
-        <section class="movie-rail">
-            <h2 class="movie-rail-title">Now Showing</h2>
+        <section class="movie-rail" id="movies">
+            <div class="movie-rail-title">
+                <h2>Now Showing</h2>
+                <span style="font-size: 0.95rem; color: var(--accent-success); font-weight: 600;">● Live Seating Active</span>
+            </div>
             <div class="movie-grid" id="movie-grid">
                 <!-- Skeletons -->
-                <div class="movie-card skeleton" style="height: 360px;"></div>
-                <div class="movie-card skeleton" style="height: 360px;"></div>
-                <div class="movie-card skeleton" style="height: 360px;"></div>
-                <div class="movie-card skeleton" style="height: 360px;"></div>
+                <div class="movie-card skeleton" style="height: 380px;"></div>
+                <div class="movie-card skeleton" style="height: 380px;"></div>
+                <div class="movie-card skeleton" style="height: 380px;"></div>
             </div>
         </section>
     </main>
@@ -60,46 +92,86 @@
     <script type="module" src="js/ui.js"></script>
     <script type="module">
         import { fetchApi } from './js/api.js';
-        import { AuthService } from './js/auth.js';
+        import { initNav, showToast } from './js/ui.js';
 
         async function init() {
-            const user = AuthService.getCurrentUser();
-            if(user) {
-                document.getElementById('auth-link').style.display = 'none';
-                document.getElementById('logout-btn').style.display = 'block';
-                document.getElementById('my-bookings-link').style.display = 'block';
-            }
+            initNav();
 
             try {
                 const movies = await fetchApi('/movies');
                 const grid = document.getElementById('movie-grid');
                 grid.innerHTML = '';
-                
-                movies.forEach((m, idx) => {
-                    if (idx === 0) {
-                        document.getElementById('hero-bg').src = m.posterUrl || 'https://via.placeholder.com/1200x800/181824/ffffff?text=Midnight+Cinema';
-                        document.getElementById('hero-bg').classList.remove('skeleton');
-                        document.getElementById('hero-title').textContent = m.title;
-                        document.getElementById('hero-meta').innerHTML = `<span>${m.durationMinutes} min</span> &bull; <span>${m.genre}</span> &bull; <span>⭐ ${m.rating}/10</span>`;
-                        document.getElementById('hero-cta').href = `shows.html?movieId=${m.id}`;
-                    }
 
-                    const card = document.createElement('div');
+                if (!movies || movies.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <h3>No Movies Currently Available</h3>
+                            <p>Movies will appear once scheduled in the database.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Set featured hero movie
+                const featured = movies[0];
+                const heroBg = document.getElementById('hero-bg');
+                heroBg.src = featured.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200';
+                heroBg.classList.remove('skeleton');
+                heroBg.onerror = () => {
+                    heroBg.src = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200';
+                };
+                
+                document.getElementById('hero-title').textContent = featured.title;
+                if (featured.description) {
+                    document.getElementById('hero-desc').textContent = featured.description;
+                }
+                document.getElementById('hero-meta').innerHTML = `
+                    <span>⏱ ${featured.durationMinutes || 120} min</span> &bull; 
+                    <span>🎬 ${featured.genre || 'Action'}</span> &bull; 
+                    <span>🗣️ ${featured.language || 'English'}</span> &bull; 
+                    <span class="rating-badge">★ ${featured.rating || '8.5'}/10</span>
+                `;
+                document.getElementById('hero-cta').href = `shows.html?movieId=${featured.id}`;
+                document.getElementById('hero-cta').textContent = 'Book ' + featured.title;
+
+                movies.forEach((m) => {
+                    const card = document.createElement('a');
                     card.className = 'movie-card';
-                    card.onclick = () => window.location.href = `shows.html?movieId=${m.id}`;
+                    card.href = `shows.html?movieId=${m.id}`;
+                    
+                    const fallbackImg = `https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500`;
                     card.innerHTML = `
-                        <img class="movie-poster" src="${m.posterUrl || 'https://via.placeholder.com/400x600'}" alt="${m.title}">
-                        <div class="movie-info">
-                            <h3>${m.title}</h3>
-                            <p>${m.genre}</p>
+                        <div class="movie-poster-wrap">
+                            <img class="movie-poster" src="${m.posterUrl || fallbackImg}" alt="${escapeHtml(m.title)}" onerror="this.src='${fallbackImg}'">
+                        </div>
+                        <div class="movie-card-body">
+                            <h3 class="movie-card-title">${escapeHtml(m.title)}</h3>
+                            <div class="movie-card-meta">
+                                <span>${escapeHtml(m.genre || 'Cinema')}</span>
+                                <span class="rating-badge">★ ${m.rating || '8.0'}</span>
+                            </div>
                         </div>
                     `;
                     grid.appendChild(card);
                 });
             } catch (err) {
-                console.error(err);
+                console.error('Failed to load movies:', err);
+                const grid = document.getElementById('movie-grid');
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <h3 style="color: var(--accent-coral);">Could not connect to cinema backend</h3>
+                        <p style="margin-bottom: 1.5rem;">Please verify that the Spring Boot server is running on port 8080.</p>
+                        <button class="btn-primary" onclick="window.location.reload()">Retry Connection</button>
+                    </div>
+                `;
             }
         }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
         init();
     </script>
 </body>

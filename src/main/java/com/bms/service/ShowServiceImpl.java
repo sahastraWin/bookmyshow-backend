@@ -8,17 +8,20 @@ import com.bms.exception.ResourceNotFoundException;
 import com.bms.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ShowServiceImpl implements ShowService {
     private final ShowRepository showRepository;
     private final MovieServiceImpl movieService;
     private final ScreenServiceImpl screenService;
 
     @Override
+    @Transactional
     public ShowResponse addShow(ShowRequest request) {
         Movie movie = movieService.findEntityById(request.getMovieId());
         Screen screen = screenService.findEntityById(request.getScreenId());

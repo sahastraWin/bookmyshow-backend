@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings | Midnight Cinema</title>
+    <link rel="stylesheet" href="css/base.css">
+    <style>
+        .page-container {
+            padding: 100px var(--space-4) var(--space-6);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .booking-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-glass-strong);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        .booking-card:hover {
+            border-color: var(--accent-coral);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .booking-title {
+            font-size: 1.35rem;
+            color: var(--text-primary);
+            margin-bottom: 0.35rem;
+        }
+        .booking-venue {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+        .booking-seats {
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+        }
+        .seat-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-success);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .booking-meta {
+            display: flex;
+            gap: 1.25rem;
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .status-chip {
+            padding: 0.25rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+        .status-chip.confirmed {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-success);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .booking-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.85rem;
+        }
+        .booking-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-panel);
+            border-radius: 16px;
+            border: 1px solid var(--border-glass-strong);
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="nav-brand">🎬 Midnight Cinema</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="shows.html">Browse Shows</a>
+            <a href="bookings.html">My Bookings</a>
+        </div>
+    </nav>
+
+    <div class="page-container">
+        <div class="page-header">
+            <div>
+                <h1>My Bookings</h1>
+                <p style="color: var(--text-secondary); margin-top: 0.25rem;">Active confirmed movie tickets</p>
+            </div>
+            <a href="shows.html" class="btn-secondary btn-sm">+ Book New Show</a>
+        </div>
+
+        <div id="bookings-list">
+            <div class="booking-card skeleton" style="height: 120px;"></div>
+            <div class="booking-card skeleton" style="height: 120px;"></div>
+        </div>
+    </div>
+
+    <script type="module" src="js/ui.js"></script>
+    <script type="module">
+        import { fetchApi } from './js/api.js';
+        import { AuthService } from './js/auth.js';
+        import { initNav, showToast } from './js/ui.js';
+
+        async function init() {
+            initNav();
+
+            const user = AuthService.getCurrentUser();
+            if (!user) {
+                sessionStorage.setItem('redirectAfterLogin', window.location.href);
+                window.location.href = 'auth.html';
+                return;
+            }
+
+            try {
+                const bookings = await fetchApi(`/bookings/user/${user.id}`);
+                const list = document.getElementById('bookings-list');
+                list.innerHTML = '';
+
+                // Only show active (non-cancelled) bookings
+                const active = (bookings || []).filter(b => String(b.bookingStatus).toUpperCase() !== 'CANCELLED');
+                
+                if (active.length === 0) {
+                    showEmptyState();
+                    return;
+                }
+
+                // Render latest first
+                active.reverse().forEach(b => {
+                    const div = document.createElement('div');
+                    div.className = 'booking-card';
+                    div.id = `booking-card-${b.bookingId}`;
+
+                    const seatBadges = (b.seats || []).map(s => 
+                        `<span class="seat-badge">${escapeHtml(s.seatNumber)}</span>`
+                    ).join('');
+
+                    const dateStr = b.bookedAt ? new Date(b.bookedAt).toLocaleString('en-US', {
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                    }) : 'Recent';
+
+                    div.innerHTML = `
+                        <div>
+                            <h3 class="booking-title">${escapeHtml(b.movieTitle || 'Movie')}</h3>
+                            <div class="booking-venue">📍 ${escapeHtml(b.theaterName || 'Theater')} • ${escapeHtml(b.screenName || 'Screen')}</div>
+                            <div class="booking-seats">
+                                <span style="font-size: 0.85rem; color: var(--text-secondary);">Seats:</span> 
+                                ${seatBadges || '<span class="seat-badge">None</span>'}
+                            </div>
+                            <div class="booking-meta">
+                                <span class="status-chip confirmed">CONFIRMED</span>
+                                <span>Ref: #MC-${b.bookingId}</span>
+                                <span>${dateStr}</span>
+                            </div>
+                        </div>
+                        <div class="booking-actions">
+                            <div class="booking-price">₹${b.totalPrice}</div>
+                            <button class="cancel-btn" data-id="${b.bookingId}">Cancel Booking</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+
+                // Attach event listeners to cancel buttons
+                document.querySelectorAll('.cancel-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        cancelBooking(btn.dataset.id);
+                    });
+                });
+
+            } catch (e) {
+                console.error(e);
+                showToast(e.message || 'Failed to load bookings', 'error');
+                document.getElementById('bookings-list').innerHTML = `
+                    <div class="empty-state">
+                        <p style="color: var(--accent-coral);">Could not retrieve bookings.</p>
+                        <button class="btn-primary" style="margin-top: 1rem;" onclick="location.reload()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        function showEmptyState() {
+            const list = document.getElementById('bookings-list');
+            list.innerHTML = `
+                <div class="empty-state">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎟️</div>
+                    <h3>No Active Bookings</h3>
+                    <p style="margin-top: 0.5rem; margin-bottom: 1.5rem;">All your active reservations will appear here.</p>
+                    <a href="shows.html" class="btn-primary">Browse & Book Shows</a>
+                </div>
+            `;
+        }
+
+        async function cancelBooking(id) {
+            if (confirm('Are you sure you want to cancel this booking? The tickets will be removed from your bookings and seats released.')) {
+                const card = document.getElementById(`booking-card-${id}`);
+                const cancelBtn = card ? card.querySelector('.cancel-btn') : null;
+                if (cancelBtn) {
+                    cancelBtn.disabled = true;
+                    cancelBtn.textContent = 'Cancelling...';
+                }
+
+                try {
+                    await fetchApi(`/bookings/${id}/cancel`, { method: 'PUT' });
+                    
+                    // Immediately animate card out and remove from bookings view
+                    if (card) {
+                        card.style.transform = 'scale(0.92) translateY(15px)';
+                        card.style.opacity = '0';
+                        card.style.transition = 'all 0.35s ease';
+                        setTimeout(() => {
+                            card.remove();
+                            // If no cards left, display empty state
+                            const remainingCards = document.querySelectorAll('.booking-card');
+                            if (remainingCards.length === 0) {
+                                showEmptyState();
+                            }
+                        }, 350);
+                    }
+
+                    showToast('Booking cancelled and removed from My Bookings', 'success');
+                } catch (e) {
+                    showToast(e.message || 'Failed to cancel booking', 'error');
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                        cancelBtn.textContent = 'Cancel Booking';
+                    }
+                }
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        init();
+    </script>
+</body>
+</html>

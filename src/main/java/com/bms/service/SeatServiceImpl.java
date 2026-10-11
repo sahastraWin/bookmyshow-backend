@@ -10,10 +10,12 @@ import com.bms.repository.SeatRepository;
 import com.bms.repository.ShowRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SeatServiceImpl implements SeatService {
     private final SeatRepository seatRepository;
     private final ScreenServiceImpl screenService;
@@ -21,6 +23,7 @@ public class SeatServiceImpl implements SeatService {
     private final BookingRepository bookingRepository;
 
     @Override
+    @Transactional
     public SeatResponse addSeat(SeatRequest request) {
         Screen screen = screenService.findEntityById(request.getScreenId());
         Seat seat = Seat.builder()

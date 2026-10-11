@@ -2,49 +2,233 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Ticket | Midnight Cinema</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed | Midnight Cinema</title>
     <link rel="stylesheet" href="css/base.css">
     <style>
-        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; }
-        .ticket { background: linear-gradient(135deg, var(--bg-panel), #1e1e2d); padding: var(--space-4); border-radius: 16px; border: 1px solid var(--border-glass); width: 100%; max-width: 400px; text-align: center; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        .ticket::before, .ticket::after { content: ''; position: absolute; width: 30px; height: 30px; background: var(--bg-darkest); border-radius: 50%; top: 50%; transform: translateY(-50%); }
-        .ticket::before { left: -15px; border-right: 1px solid var(--border-glass); }
-        .ticket::after { right: -15px; border-left: 1px solid var(--border-glass); }
-        .ticket-divider { border-top: 2px dashed var(--border-glass); margin: var(--space-3) 0; }
-        .qr-code { background: white; padding: 10px; display: inline-block; margin-top: 1rem; border-radius: 8px; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 100px var(--space-4) var(--space-6);
+        }
+        .ticket-wrapper {
+            max-width: 440px;
+            width: 100%;
+            text-align: center;
+        }
+        .success-banner {
+            margin-bottom: 1.5rem;
+        }
+        .success-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .ticket {
+            background: var(--bg-panel);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-glass);
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+        }
+        .ticket::before, .ticket::after {
+            content: '';
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background: var(--bg-darkest);
+            border-radius: 50%;
+            top: 55%;
+            transform: translateY(-50%);
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.8);
+        }
+        .ticket::before { left: -14px; border-right: 1px solid var(--border-glass); }
+        .ticket::after { right: -14px; border-left: 1px solid var(--border-glass); }
+
+        .ticket-header {
+            margin-bottom: 1.25rem;
+        }
+        .booking-ref {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent-coral);
+            font-weight: 700;
+        }
+        .ticket-movie-title {
+            font-size: 1.8rem;
+            margin-top: 0.35rem;
+            color: var(--text-primary);
+        }
+        .ticket-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 0.3rem;
+        }
+
+        .ticket-divider {
+            border-top: 2px dashed rgba(255, 255, 255, 0.15);
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .ticket-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .detail-item-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-tertiary);
+        }
+        .detail-item-value {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 0.2rem;
+        }
+
+        .qr-section {
+            background: white;
+            padding: 12px;
+            display: inline-block;
+            border-radius: 12px;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .qr-section img {
+            display: block;
+            width: 100px;
+            height: 100px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
-    <div class="ticket" id="ticket">
-        <h2>Booking Confirmed!</h2>
-        <div class="ticket-divider"></div>
-        <h3 id="movie-title" style="color: var(--accent-coral);">Loading...</h3>
-        <p id="theater-info" style="color: var(--text-secondary); margin-top: 8px;"></p>
-        <p id="time-info" style="margin-top: 8px;"></p>
-        <div class="ticket-divider"></div>
-        <p id="seats-info" style="font-size: 1.2rem; font-weight: bold;"></p>
-        <div class="qr-code">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=MidnightCinema" alt="QR Code">
+    <nav>
+        <a href="index.html" class="nav-brand">Midnight Cinema</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="bookings.html">My Bookings</a>
+        </div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div class="ticket-wrapper">
+            <div class="success-banner">
+                <div class="success-icon">🎟️</div>
+                <h2 style="font-size: 2rem;">Booking Confirmed!</h2>
+                <p style="color: var(--text-secondary); margin-top: 0.25rem;">Your digital pass is ready for entry.</p>
+            </div>
+
+            <div class="ticket" id="ticket">
+                <div class="ticket-header">
+                    <div class="booking-ref" id="booking-ref">BOOKING #---</div>
+                    <h3 class="ticket-movie-title" id="movie-title">Loading Ticket...</h3>
+                    <div class="ticket-meta" id="theater-info">Please wait</div>
+                </div>
+
+                <div class="ticket-divider"></div>
+
+                <div class="ticket-details">
+                    <div>
+                        <div class="detail-item-label">Seats</div>
+                        <div class="detail-item-value" id="seats-info">-</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Total Amount</div>
+                        <div class="detail-item-value" id="price-info" style="color: var(--accent-gold);">-</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Booked At</div>
+                        <div class="detail-item-value" id="time-info" style="font-size: 0.9rem;">-</div>
+                    </div>
+                    <div>
+                        <div class="detail-item-label">Guest Name</div>
+                        <div class="detail-item-value" id="user-info">-</div>
+                    </div>
+                </div>
+
+                <div class="qr-section">
+                    <img id="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=MidnightCinema" alt="QR Code">
+                </div>
+            </div>
+
+            <div class="action-row">
+                <a href="bookings.html" class="btn-primary">View in My Bookings</a>
+                <a href="index.html" class="btn-secondary">Browse More</a>
+            </div>
         </div>
     </div>
-    <a href="index.html" class="btn-primary" style="margin-top: 2rem;">Back to Home</a>
 
+    <script type="module" src="js/ui.js"></script>
     <script type="module">
         import { fetchApi } from './js/api.js';
+        import { initNav, showToast } from './js/ui.js';
         
         async function init() {
+            initNav();
+
             const params = new URLSearchParams(window.location.search);
             const bookingId = params.get('bookingId');
-            if(!bookingId) return;
+            if (!bookingId) {
+                window.location.href = 'index.html';
+                return;
+            }
 
             try {
                 const b = await fetchApi(`/bookings/${bookingId}`);
+                document.getElementById('booking-ref').textContent = `BOOKING #MC-${b.bookingId}`;
                 document.getElementById('movie-title').textContent = b.movieTitle;
                 document.getElementById('theater-info').textContent = `${b.theaterName} • ${b.screenName}`;
-                document.getElementById('time-info').textContent = new Date(b.bookedAt).toLocaleString();
-                document.getElementById('seats-info').textContent = 'Seats: ' + b.seats.map(s => s.seatNumber).join(', ');
-            } catch(e) { console.error(e); }
+                
+                const seatList = (b.seats || []).map(s => s.seatNumber).join(', ');
+                document.getElementById('seats-info').textContent = seatList || 'N/A';
+                document.getElementById('price-info').textContent = `₹${b.totalPrice}`;
+                
+                const bookedDate = b.bookedAt ? new Date(b.bookedAt).toLocaleString('en-US', {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                }) : 'Just now';
+                document.getElementById('time-info').textContent = bookedDate;
+                document.getElementById('user-info').textContent = b.userName || 'Guest';
+
+                // QR code data
+                const qrData = encodeURIComponent(`MidnightCinema:Booking#${b.bookingId}|${b.movieTitle}|${seatList}`);
+                document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${qrData}`;
+
+            } catch (e) {
+                console.error(e);
+                showToast(e.message || 'Failed to retrieve booking confirmation', 'error');
+                document.getElementById('movie-title').textContent = 'Booking Not Found';
+            }
         }
+
         init();
     </script>
 </body>
